@@ -1,0 +1,80 @@
+version: '2'
+
+# Be sure to set these environment variables:
+#  - INFLUXDB_HOSTNAME
+#  - INFLUXDB_ADMIN_USER
+#  - INFLUXDB_ADMIN_PASSWORD
+#  - INFLUXDB_DB
+#  - INFLUXDB_USER
+#  - INFLUXDB_USER_PASSWORD
+
+services:
+
+  influxdb:
+    build: influxdb
+    environment:
+      - 'RUN_ON_DEVICES=collector-pi3'
+    ports:
+      - '8086:8086'
+    restart: on-failure
+    volumes:
+      - 'influxdb-data:/var/lib/influxdb'
+
+  grafana:
+    build: grafana
+    depends_on:
+      - influxdb
+    environment:
+      - 'RUN_ON_DEVICES=collector-pi3'
+    ports:
+      - '80:3000'
+    restart: on-failure
+    volumes:
+      - 'grafana-data:/var/lib/grafana'
+
+  dtoverlay-enviro-phat:
+    build: dtoverlay
+    command: apply_overlays enviro-phat
+    environment:
+      - 'RUN_ON_DEVICES=collector-pi3'
+    privileged: true
+    restart: no
+
+  dtoverlay-dht:
+    build: dtoverlay
+    command: apply_overlays dht
+    environment:
+      - 'RUN_ON_DEVICES=sensor-pi3'
+    privileged: true
+    restart: no
+
+  bmp280-sensor:
+    build: telegraf
+    depends_on:
+      - dtoverlay-enviro-phat
+    environment:
+      - 'RUN_ON_DEVICES=collector-pi3'
+      - 'TELEGRAF_EXEC_COMMAND=/collect/bmp280.sh'
+    restart: on-failure
+
+  ads1015-sensor:
+    build: telegraf
+    depends_on:
+      - dtoverlay-enviro-phat
+    environment:
+      - 'RUN_ON_DEVICES=collector-pi3'
+      - 'TELEGRAF_EXEC_COMMAND=/collect/ads1015.sh'
+    restart: on-failure
+
+  dht-sensor:
+    build: telegraf
+    depends_on:
+      - dtoverlay-dht
+    environment:
+      - 'RUN_ON_DEVICES=sensor-pi3'
+      - 'TELEGRAF_EXEC_COMMAND=/collect/mock_dht_sensor.sh'
+    restart: on-failure
+
+volumes:
+  influxdb-data:
+  grafana-data:

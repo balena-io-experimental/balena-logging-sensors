@@ -1,0 +1,34 @@
+#!/bin/sh
+set -e
+
+print_help() {
+  echo "compile_overlays - Compile device tree overlay .dts sources into binary .dtbo files."
+  echo "Usage:"
+  echo "  compile_overlays"
+  echo "This command will enumerate all .dts sources in the overlays folder" \
+       "(default location: $OVERLAYS_DIR) and compile them into binary .dtbo" \
+       "files in the same location.  You can change the overlays folder location" \
+       "by setting the OVERLAYS_DIR environment variable.  In addition you can" \
+       "specify extra parameters to the dtc compiler with the DTC_EXTRA_ARGS" \
+       "variable. Bind mount the overlays folder to a local folder on your machine" \
+       "to easily specify sources and extract compiled binaries."
+}
+
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+  print_help
+  exit 0
+fi
+
+echo "compile_overlays: Compiling all .dts overlay sources in $OVERLAYS_DIR"
+if [ -n "$DTC_EXTRA_ARGS" ]; then
+  echo "compile_overlays: Using extra DTC arguments: $DTC_EXTRA_ARGS"
+fi
+dtc -v
+
+# Loop through all the .dts files in the overlays folder and compile them into
+# .dtbo binary overlays with the dtc device tree compiler.
+for INPUT_DTS in $(find $OVERLAYS_DIR -name '*.dts'); do
+  OUTPUT_DTBO=${INPUT_DTS%.dts}.dtbo
+  echo "compile_overlays: Compiling $INPUT_DTS"
+  dtc $DTC_EXTTRA_ARGS -@ -I dts -O dtb -o $OUTPUT_DTBO $INPUT_DTS
+done

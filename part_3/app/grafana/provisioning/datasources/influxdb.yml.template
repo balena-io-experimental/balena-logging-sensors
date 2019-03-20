@@ -1,0 +1,20 @@
+# Grafana provisioning configuration to setup the InfluxDB database as a
+# default source (with all the necessary auth info) out of the box.
+# See details on the format here:
+#  http://docs.grafana.org/administration/provisioning/#datasources
+# Note environment variables of the form $ENV or ${ENV} _will_ be substituted
+# at run-time as a pre-run task.
+apiVersion: 1
+
+datasources:
+  - name: 'InfluxDB - Telegraf'
+    type: influxdb
+    access: proxy
+    url: https://${INFLUXDB_HOSTNAME}:8086
+    database: ${INFLUXDB_DB}
+    basicAuth: true
+    basicAuthUser: ${INFLUXDB_USER}
+    basicAuthPassword: ${INFLUXDB_USER_PASSWORD}
+    isDefault: true
+    jsonData:
+      tlsSkipVerify: true

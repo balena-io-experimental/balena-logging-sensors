@@ -1,0 +1,20 @@
+/dts-v1/;
+/plugin/;
+
+&i2c1 {
+  status = "okay";
+  #address-cells = <1>;
+  #size-cells = <0>;
+
+  /* Define the BMP280 pressure sensor at address 0x77 */
+  bmp280@77 {
+    compatible = "bosch,bmp280";
+    reg = <0x77>;
+  };
+
+  /* Define the ADS1015 ADC at address 0x49 */
+  ads1015@49 {
+    compatible = "ti,ads1015";
+    reg = <0x49>;
+  };
+};

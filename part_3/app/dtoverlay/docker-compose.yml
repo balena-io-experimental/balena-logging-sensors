@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+
+  dtoverlay-dht-bbb:
+    build: .
+    environment:
+      - 'RUN_ON_DEVICES=sensor-bbb'
+    command: apply_overlays dht
+    privileged: true
+    restart: no

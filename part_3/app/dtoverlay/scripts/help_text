@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+echo "No device tree tool command specified!"
+echo "Available commands:"
+echo "  compile_overlays - Compile device tree overlay .dts source files into .dtbo binaries."
+echo "  apply_overlays   - Attempt to dynamically apply compiled overlays to the running kernel."
